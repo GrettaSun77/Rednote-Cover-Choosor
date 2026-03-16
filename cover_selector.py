@@ -176,15 +176,15 @@ def build_openai_messages(historical_profile: dict[str, Any], uploaded_images: l
     examples = {
         "dimension_weights": historical_profile["dimension_weights"],
         "winner_reason_samples": historical_profile["winner_reason_samples"],
-        "task": "Rank candidate images for Xiaohongshu cover selection.",
+        "task": "为小红书头图场景对候选图片进行排序。",
     }
     user_content: list[dict[str, Any]] = [
         {
             "type": "input_text",
             "text": (
-                "Review these candidate cover images for Xiaohongshu. Use the historical preference profile "
-                "to score each image on eye_catch, cover_fit, subject_clarity, mood, and composition. "
-                "Return strict JSON only."
+                "请为这些小红书候选头图打分。你需要结合历史偏好画像，"
+                "从吸睛度、封面感、主体清晰度、情绪氛围、构图完整度五个维度评分。"
+                "所有说明必须使用简体中文。只返回严格 JSON。"
             ),
         },
         {"type": "input_text", "text": json.dumps(examples, ensure_ascii=False)},
@@ -201,8 +201,9 @@ def build_openai_messages(historical_profile: dict[str, Any], uploaded_images: l
                 {
                     "type": "input_text",
                     "text": (
-                        "You are a vision ranking model for Xiaohongshu cover selection. "
-                        "Prioritize likely public preference and click-through appeal, not pure artistic merit."
+                        "你是一个用于小红书头图选择的视觉排序助手。"
+                        "你的目标不是判断哪张图艺术性最高，而是判断哪张图最可能获得大众偏好和点击。"
+                        "所有输出说明都必须使用简体中文。"
                     ),
                 }
             ],
@@ -326,26 +327,26 @@ def blend_scores(
         final_score = round(0.55 * openai_score + 0.2 * feature_score + 0.25 * history_score, 2)
         final_scores.append(
             {
-                "image_index": image.index,
-                "final_score": final_score,
-                "openai_score": round(openai_score, 2),
-                "feature_score": round(feature_score, 2),
-                "history_score": round(history_score, 2),
-                "openai_reason": openai_map.get(image.index).summary if image.index in openai_map else "暂无",
-                "feature_reason": feature_map.get(image.index).summary if image.index in feature_map else "暂无",
+                "候选图": image.index,
+                "最终分": final_score,
+                "视觉模型分": round(openai_score, 2),
+                "图片特征分": round(feature_score, 2),
+                "历史偏好分": round(history_score, 2),
+                "视觉分析说明": openai_map.get(image.index).summary if image.index in openai_map else "暂无",
+                "图片特征说明": feature_map.get(image.index).summary if image.index in feature_map else "暂无",
             }
         )
 
-    final_scores.sort(key=lambda item: item["final_score"], reverse=True)
+    final_scores.sort(key=lambda item: item["最终分"], reverse=True)
     best = final_scores[0]
-    second_score = final_scores[1]["final_score"] if len(final_scores) > 1 else max(best["final_score"] - 1, 0)
-    confidence = round(clamp(0.55 + (best["final_score"] - second_score) / 10, 0.0, 0.99), 2)
+    second_score = final_scores[1]["最终分"] if len(final_scores) > 1 else max(best["最终分"] - 1, 0)
+    confidence = round(clamp(0.55 + (best["最终分"] - second_score) / 10, 0.0, 0.99), 2)
 
     return SelectionResult(
-        best_image_index=best["image_index"],
+        best_image_index=best["候选图"],
         confidence=confidence,
         reason=(
-            f"第 {best['image_index']} 张在 OpenAI 视觉评分、本地图片特征评分和历史偏好校准的融合结果中排名最高。"
+            f"第 {best['候选图']} 张在视觉模型评分、图片特征评分和历史偏好校准的融合结果中排名最高。"
         ),
         final_scores=final_scores,
         source_scores={
