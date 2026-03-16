@@ -1,0 +1,179 @@
+{
+  "source_file": "D:\\小红书头图\\input.xlsx",
+  "record_count": 3,
+  "records": [
+    {
+      "batch_name": "第一批",
+      "candidate_count": 4,
+      "winner_labels": [
+        "图1"
+      ],
+      "winner_indices": [
+        1
+      ],
+      "candidates": [
+        {
+          "batch_name": "第一批",
+          "image_label": "图1",
+          "image_number": 1,
+          "vote_count": 37,
+          "reason_summary": "“超美”（2次）、“吸引人/点进来”（2次）、“好美”、“美我一大跳”、“太米了”",
+          "winner": true
+        },
+        {
+          "batch_name": "第一批",
+          "image_label": "图2",
+          "image_number": 2,
+          "vote_count": 9,
+          "reason_summary": "无具体原因（仅数字评论）",
+          "winner": false
+        },
+        {
+          "batch_name": "第一批",
+          "image_label": "图3",
+          "image_number": 3,
+          "vote_count": 10,
+          "reason_summary": "“绝了”、“太米了”、“超级好看”",
+          "winner": false
+        },
+        {
+          "batch_name": "第一批",
+          "image_label": "图4",
+          "image_number": 4,
+          "vote_count": 6,
+          "reason_summary": "“mvp”、“超级好看”",
+          "winner": false
+        }
+      ]
+    },
+    {
+      "batch_name": "第二批",
+      "candidate_count": 5,
+      "winner_labels": [
+        "图3"
+      ],
+      "winner_indices": [
+        3
+      ],
+      "candidates": [
+        {
+          "batch_name": "第二批",
+          "image_label": "图1",
+          "image_number": 1,
+          "vote_count": 4,
+          "reason_summary": "清纯（1次）、人比花美（1次）",
+          "winner": false
+        },
+        {
+          "batch_name": "第二批",
+          "image_label": "图2",
+          "image_number": 2,
+          "vote_count": 2,
+          "reason_summary": "必须是2（1次）",
+          "winner": false
+        },
+        {
+          "batch_name": "第二批",
+          "image_label": "图3",
+          "image_number": 3,
+          "vote_count": 5,
+          "reason_summary": "最好看（1次）、自然美略带俏皮（1次）、含花的都有点刻意（此为对图3的负面评价，已标注）（1次）、3/5都行（1次）",
+          "winner": true
+        },
+        {
+          "batch_name": "第二批",
+          "image_label": "图4",
+          "image_number": 4,
+          "vote_count": 3,
+          "reason_summary": "侧颜真的 梦里绝对全是你（1次）",
+          "winner": false
+        },
+        {
+          "batch_name": "第二批",
+          "image_label": "图5",
+          "image_number": 5,
+          "vote_count": 2,
+          "reason_summary": "3/5都行（1次）",
+          "winner": false
+        }
+      ]
+    },
+    {
+      "batch_name": "第三批",
+      "candidate_count": 6,
+      "winner_labels": [
+        "图6"
+      ],
+      "winner_indices": [
+        6
+      ],
+      "candidates": [
+        {
+          "batch_name": "第三批",
+          "image_label": "图1",
+          "image_number": 1,
+          "vote_count": 17,
+          "reason_summary": "太美啦；金色点缀得特别不俗，头一次看黄金饰品加上时尚忧郁的属性；感觉很有侵略性；为此点进来；人生照片；好绝",
+          "winner": false
+        },
+        {
+          "batch_name": "第三批",
+          "image_label": "图2",
+          "image_number": 2,
+          "vote_count": 4,
+          "reason_summary": "喜欢",
+          "winner": false
+        },
+        {
+          "batch_name": "第三批",
+          "image_label": "图3",
+          "image_number": 3,
+          "vote_count": 19,
+          "reason_summary": "美爆啦；虽然是低眉，但冷静的面容和手背的青筋就能让人感觉这是一个木质坚韧的人",
+          "winner": false
+        },
+        {
+          "batch_name": "第三批",
+          "image_label": "图4",
+          "image_number": 4,
+          "vote_count": 4,
+          "reason_summary": "更喜欢",
+          "winner": false
+        },
+        {
+          "batch_name": "第三批",
+          "image_label": "图5",
+          "image_number": 5,
+          "vote_count": 5,
+          "reason_summary": "劲劲的，带点海飞丝洗剪吹属性；绝绝子；更喜欢；喜欢",
+          "winner": false
+        },
+        {
+          "batch_name": "第三批",
+          "image_label": "图6",
+          "image_number": 6,
+          "vote_count": 20,
+          "reason_summary": "因为6点进来的；有张力，力量感中带着不羁；绝绝子；好像专辑封面；神似碧梨",
+          "winner": true
+        }
+      ]
+    }
+  ],
+  "extracted_media": [
+    "D:\\小红书头图\\data\\processed\\embedded_media\\image1.jpeg",
+    "D:\\小红书头图\\data\\processed\\embedded_media\\image2.jpeg",
+    "D:\\小红书头图\\data\\processed\\embedded_media\\image3.jpeg",
+    "D:\\小红书头图\\data\\processed\\embedded_media\\image4.jpeg",
+    "D:\\小红书头图\\data\\processed\\embedded_media\\image5.jpeg",
+    "D:\\小红书头图\\data\\processed\\embedded_media\\image6.jpeg",
+    "D:\\小红书头图\\data\\processed\\embedded_media\\image7.jpeg",
+    "D:\\小红书头图\\data\\processed\\embedded_media\\image11.jpeg",
+    "D:\\小红书头图\\data\\processed\\embedded_media\\image12.jpeg",
+    "D:\\小红书头图\\data\\processed\\embedded_media\\image13.jpeg",
+    "D:\\小红书头图\\data\\processed\\embedded_media\\image14.jpeg",
+    "D:\\小红书头图\\data\\processed\\embedded_media\\image15.jpeg",
+    "D:\\小红书头图\\data\\processed\\embedded_media\\image8.jpeg",
+    "D:\\小红书头图\\data\\processed\\embedded_media\\image10.jpeg",
+    "D:\\小红书头图\\data\\processed\\embedded_media\\image9.jpeg"
+  ]
+}
