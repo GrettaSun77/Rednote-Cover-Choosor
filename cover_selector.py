@@ -220,6 +220,13 @@ def load_historical_visual_profile(dataset: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def select_reference_images(dataset: dict[str, Any], max_winners: int = 3, max_non_winners: int = 3) -> dict[str, list[dict[str, Any]]]:
+    mapped_images = map_historical_images(dataset)
+    winners = [item for item in mapped_images if item["winner"]][:max_winners]
+    non_winners = [item for item in mapped_images if not item["winner"]][:max_non_winners]
+    return {"winners": winners, "non_winners": non_winners}
+
+
 def score_image_features(uploaded_images: list[UploadedImage]) -> list[ScoreCard]:
     cards: list[ScoreCard] = []
     for image in uploaded_images:
@@ -249,30 +256,119 @@ def score_image_features(uploaded_images: list[UploadedImage]) -> list[ScoreCard
 
 
 def score_historical_visual_match(dataset: dict[str, Any], uploaded_images: list[UploadedImage]) -> list[ScoreCard]:
-    visual_profile = load_historical_visual_profile(dataset)
-    winner_centroid = visual_profile.get("winner_centroid", {})
-    non_winner_centroid = visual_profile.get("non_winner_centroid", {})
-    cards: list[ScoreCard] = []
-    for image in uploaded_images:
-        details = extract_visual_features(pil_image_from_bytes(image.data))
-        winner_distance = feature_distance(details, winner_centroid) if winner_centroid else 999.0
-        non_winner_distance = feature_distance(details, non_winner_centroid) if non_winner_centroid else 999.0
-        raw_score = 5 + (non_winner_distance - winner_distance) * 2.2
-        total_score = normalize_0_10(raw_score)
-        summary = (
-            f"与历史高票图距离 {winner_distance:.2f}，与历史普通图距离 {non_winner_distance:.2f}。"
-            "分数越高表示越接近历史 winner 的网感。"
+    api_key = get_api_key()
+    if not api_key:
+        return []
+
+    references = select_reference_images(dataset)
+    if not references["winners"] or not references["non_winners"]:
+        return []
+
+    from openai import OpenAI
+
+    client = OpenAI(api_key=api_key)
+
+    user_content: list[dict[str, Any]] = [
+        {
+            "type": "input_text",
+            "text": (
+                "下面先给你历史高票头图参考，再给你历史普通图参考，最后给你新的候选图。"
+                "请判断每张候选图与历史高票图的网感接近程度，以及它是否更像普通图而不是高票头图。"
+                "请使用简体中文，只返回严格 JSON。"
+            ),
+        }
+    ]
+
+    for idx, item in enumerate(references["winners"], start=1):
+        user_content.append(
+            {
+                "type": "input_text",
+                "text": f"历史高票参考图 {idx}，来自 {item['batch_name']} {item['image_label']}",
+            }
         )
+        user_content.append(
+            {
+                "type": "input_image",
+                "image_url": image_to_data_url(item["path"].read_bytes(), "image/jpeg"),
+            }
+        )
+
+    for idx, item in enumerate(references["non_winners"], start=1):
+        user_content.append(
+            {
+                "type": "input_text",
+                "text": f"历史普通参考图 {idx}，来自 {item['batch_name']} {item['image_label']}",
+            }
+        )
+        user_content.append(
+            {
+                "type": "input_image",
+                "image_url": image_to_data_url(item["path"].read_bytes(), "image/jpeg"),
+            }
+        )
+
+    for image in uploaded_images:
+        user_content.append({"type": "input_text", "text": f"当前候选图 {image.index}"})
+        user_content.append({"type": "input_image", "image_url": image_to_data_url(image.data, image.mime_type)})
+
+    response = client.responses.create(
+        model=os.getenv("OPENAI_VISION_MODEL", "gpt-4.1-mini"),
+        input=[
+            {
+                "role": "system",
+                "content": [
+                    {
+                        "type": "input_text",
+                        "text": (
+                            "你在做小红书头图的历史风格对比。"
+                            "请重点判断候选图是否具有历史高票图常见的网感、吸引力、封面感和社交平台适配度。"
+                            "不要因为蓝底、证件照感或职业感更强就误判为更适合小红书头图。"
+                            "所有说明都必须使用简体中文。"
+                        ),
+                    }
+                ],
+            },
+            {"role": "user", "content": user_content},
+        ],
+        text={
+            "format": {
+                "type": "json_schema",
+                "name": "historical_visual_match",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "images": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "image_index": {"type": "integer"},
+                                    "historical_match_score": {"type": "number"},
+                                    "reason": {"type": "string"},
+                                },
+                                "required": ["image_index", "historical_match_score", "reason"],
+                                "additionalProperties": False,
+                            },
+                        }
+                    },
+                    "required": ["images"],
+                    "additionalProperties": False,
+                },
+            }
+        },
+    )
+
+    payload = json.loads(response.output_text)
+    cards: list[ScoreCard] = []
+    for item in payload["images"]:
+        total_score = normalize_0_10(item["historical_match_score"])
         cards.append(
             ScoreCard(
-                image_index=image.index,
+                image_index=int(item["image_index"]),
                 source="historical_visual_match",
                 total_score=total_score,
-                summary=summary,
-                details={
-                    "winner_distance": round(winner_distance, 4),
-                    "non_winner_distance": round(non_winner_distance, 4),
-                },
+                summary=item["reason"],
+                details={"historical_match_score": total_score},
             )
         )
     return cards
